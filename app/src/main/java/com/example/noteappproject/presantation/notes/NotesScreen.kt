@@ -9,7 +9,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,15 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -45,7 +38,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -56,7 +48,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.example.noteappproject.domain.model.Note
-import com.example.noteappproject.domain.use_case.NoteUseCases
 import com.example.noteappproject.presantation.notes.components.DropdownMenuBox
 import com.example.noteappproject.presantation.notes.components.NoteItem
 import com.example.noteappproject.presantation.notes.components.OrderSection
@@ -73,7 +64,6 @@ fun NotesScreen(
 ) {
     val state = viewModel.state.value
     val snackbarHostState = remember { SnackbarHostState() }
-
 
     val scope = rememberCoroutineScope()
 
@@ -97,7 +87,6 @@ fun NotesScreen(
 
                         // Kaydedilen Not'un ID'sini alınıyor
                         val savedNoteId = viewModel.noteUseCases.getNoteId(newNote)
-                        // Kaydedilen Not'un ID'sini kullanarak düzenleme ekranına yönlendirin
                         navController.navigate(Screen.AddEditNoteScreen.route +
                                 "?noteId=${savedNoteId}&noteColor=${newNote.color}&categoryId=${newNote.category}")
                     }

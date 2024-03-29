@@ -1,6 +1,7 @@
 package com.example.noteappproject.presantation.audio_record
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -33,6 +34,7 @@ import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -51,6 +53,7 @@ fun AudioRecordScreen(
         mutableStateOf(R.drawable._11871_pause_icon)
     }
     val state= viewModel.state.value
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -191,6 +194,7 @@ fun AudioRecordScreen(
                                     .background(color = Color.LightGray)
                                     .clickable {
                                         viewModel.onEvent(AudioRecordEvent.SaveRecording)
+                                        Toast.makeText(context,"Audio is recorded succesfully!",Toast.LENGTH_SHORT).show()
                                     }
                                     .border(1.dp, Color.Blue, CircleShape)
 

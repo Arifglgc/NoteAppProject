@@ -65,6 +65,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
+import com.example.noteappproject.domain.model.AudioRecord
 import com.example.noteappproject.presantation.add_edit_note.components.AudioRecordItem
 import com.example.noteappproject.presantation.util.ButtonId
 import com.example.noteappproject.presantation.util.Screen
@@ -85,7 +86,6 @@ fun AddEditNoteScreen(
     var selectedIndex by remember { mutableStateOf(3) }
     val state= viewModel.state.value
 
-    val bottomBarIndex= viewModel.bottamBarIndex.value
 
     val items = listOf(
         BottomMenuItem(ButtonId.mic, "Audio Record",Screen.AudioRecordScreen.route+"?noteId=${noteId}"),
@@ -94,6 +94,7 @@ fun AddEditNoteScreen(
         BottomMenuItem(ButtonId.cursorIcon, "Cancel"),
     )
 
+    var recentDeletedAudio by remember { mutableStateOf<AudioRecord?>(null) }
 
     var isOptionsMenuVisible by remember { mutableStateOf(false) }
 
@@ -104,6 +105,10 @@ fun AddEditNoteScreen(
     var microphonePermissionGranted by remember { mutableStateOf(false) }
 
     val isDialogVisible= remember{ mutableStateOf(false) }
+
+
+    val isAudioRecordDeleteDialogVisible= remember{ mutableStateOf(false) }
+
 
     val microphonePermissionRequest =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
@@ -188,8 +193,45 @@ fun AddEditNoteScreen(
             }
         }
 
+
         // scaffoldState = scaffoldState
     ) {
+        if (isAudioRecordDeleteDialogVisible.value) {
+            AlertDialog(
+                onDismissRequest = {
+                    isAudioRecordDeleteDialogVisible.value = false
+                    recentDeletedAudio = null // reset recentDeletedAudio if dismissed
+                },
+                title = { Text("Confirmation") },
+                text = {
+                    Text("Are you sure you want to delete this recording?")
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            // Delete the audio record
+                            recentDeletedAudio?.let { audioRecord ->
+                                viewModel.onEvent(AddEditNoteEvent.DeleteRecording(audioRecord))
+                            }
+                            isAudioRecordDeleteDialogVisible.value = false
+                            recentDeletedAudio = null // reset recentDeletedAudio after deletion
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = {
+                            isAudioRecordDeleteDialogVisible.value = false
+                            recentDeletedAudio = null // reset recentDeletedAudio if dismissed
+                        }
+                    ) {
+                        Text("Cancel")
+                    }
+                }
+            )
+        }
 
         if (isDialogVisible.value) {
             val context = LocalContext.current
@@ -374,7 +416,10 @@ fun AddEditNoteScreen(
                         valueThis = viewModel.isPlayingCase,
                         isFinished = viewModel.isFinishedCase,
                         seekToPosition = { viewModel.onEvent(AddEditNoteEvent.SeektoPosition(state.currentTime)) },
-                        onDeleteClick = { viewModel.onEvent(AddEditNoteEvent.DeleteRecording(audioRecord)) }
+                        onDeleteClick = {
+                            isAudioRecordDeleteDialogVisible.value= true
+                            recentDeletedAudio= audioRecord
+                        }
                     )
                 }
             }

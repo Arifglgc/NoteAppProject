@@ -12,8 +12,6 @@ import com.example.noteappproject.domain.util.NoteOrder
 import com.example.noteappproject.domain.util.OrderType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -23,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NotesViewModel @Inject constructor(
-    public val noteUseCases: NoteUseCases
+    val noteUseCases: NoteUseCases
 ) : ViewModel(){
 
     private val _state= mutableStateOf(NotesState())
@@ -86,6 +84,7 @@ class NotesViewModel @Inject constructor(
                 }
 
             }
+
             is NotesEvent.DeleteAudios->{
                 viewModelScope.launch {
                     Log.d("testingoff",recentlyDeletedNote!!.id!!.toString())
@@ -124,6 +123,7 @@ class NotesViewModel @Inject constructor(
             }
             .launchIn(viewModelScope)}
         else{
+
             getNotesJob = noteUseCases.getNotesUseCase(noteOrder)
                 .onEach { notes ->
                     _state.value = state.value.copy(

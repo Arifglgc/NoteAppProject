@@ -11,6 +11,7 @@ sealed class AddEditNoteEvent{
     data class ChangeColor(val color: Int): AddEditNoteEvent()
     data class ChangeCategory(val categoryId: Int): AddEditNoteEvent()
 
+  //  data class ConfirmDeleteRecording(val audioRecord: AudioRecord) : AddEditNoteEvent()
     object SaveNote: AddEditNoteEvent()
 
     object KillProcesses: AddEditNoteEvent()
@@ -26,5 +27,8 @@ sealed class AddEditNoteEvent{
 
     data class DeleteRecording(val deletedAudio: AudioRecord): AddEditNoteEvent()
 
+    object RestoreAudioRecord: AddEditNoteEvent()
+
 
 }
+

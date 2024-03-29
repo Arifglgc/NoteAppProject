@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.toArgb
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.SavedStateHandle
@@ -24,7 +23,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
+const val TAG="AddEditViewModel"
 @HiltViewModel
 class AddEditNoteViewModel @Inject constructor(
     private val noteUseCases: NoteUseCases,
@@ -51,7 +50,6 @@ class AddEditNoteViewModel @Inject constructor(
     val noteCategory: State<Int> = _noteCategory
 
     private val _bottamBarIndex = mutableStateOf(3)
-    val bottamBarIndex: State<Int> = _bottamBarIndex
 
     private val _eventFlow = MutableSharedFlow<UiEvent>()
     val eventFlow = _eventFlow.asSharedFlow()
@@ -66,7 +64,6 @@ class AddEditNoteViewModel @Inject constructor(
 
 
     private var getAudiosJob: Job? = null
-
 
     //val isPlayingLive: MutableLiveData<Boolean> = noteUseCases.audioPlayerUseCase.isPlaying
 
@@ -150,25 +147,8 @@ class AddEditNoteViewModel @Inject constructor(
             is AddEditNoteEvent.ChangeColor -> {
                 _noteColor.value = event.color
                 viewModelScope.launch {
-                    try {
-                        noteUseCases.addNoteUseCase(
-                            Note(
-                                title = noteTitle.value.text,
-                                content = noteContent.value.text,
-                                timeStamp = System.currentTimeMillis(),
-                                color = noteColor.value,
-                                id = currentNoteId,
-                                category = noteCategory.value
-                            )
-                        )
-                        noteUseCases.audioRecordingUseCase.updateRecords(currentNoteId?:6 )
-                    } catch(e: InvalidNoteException) {
-                        _eventFlow.emit(
-                            UiEvent.ShowSnackbar(
-                                message = e.message ?: "Couldn't save note"
-                            )
-                        )
-                    }
+                    // Notun renk değişikliği
+                    _eventFlow.emit(UiEvent.ShowSnackbar("Note color changed successfully"))
                 }
             }
             is AddEditNoteEvent.SaveNote -> {
@@ -201,8 +181,6 @@ class AddEditNoteViewModel @Inject constructor(
             }
 
             is AddEditNoteEvent.PlayAudio -> {
-              //  Log.w("he he ","Bura viewModel PlayAudio içinde state değişim   önce "+state.value.isPlaying +state.value.isPaused)
-                Log.w("he he "," playAudio ViewModel  ve use case öncesi")
 
                 _state.value= state.value.copy(
                     isPaused = isPausedCase.value?:true,
@@ -210,45 +188,39 @@ class AddEditNoteViewModel @Inject constructor(
                     isPlaying = isPlayingCase.value?: false,
                     fullTime = event.audioRecord.duration
                 )
-               // Log.w("he he ","Bura viewModel PlayAudio içinde state değişim   sonra ve use case önce  "+state.value.isPlaying +state.value.isPaused)
                 noteUseCases.audioPlayerUseCase.play(event.audioRecord)
 
                 startRecordingTimer(state.value.fullTime)
 
-                Log.w("he he "," playAudio ViewModel Use case sonrası  ")
+                Log.w(TAG," playAudio ViewModel Use case sonrası  ")
             }
 
             is AddEditNoteEvent.PausePlaying -> {
-                Log.w("he he ","Bura viewModel Puase içinde state değişim   önce "+state.value.isPlaying +state.value.isPaused)
 
                 _state.value= state.value.copy(
                     isPlaying = false,
                     isPaused = true
                 )
-                Log.w("he he ","Bura viewModel Pause içinde state değişim   sonra "+state.value.isPlaying +state.value.isPaused)
+                Log.w(TAG," Pause içinde state değişim sonrası "+state.value.isPlaying +state.value.isPaused)
 
                 noteUseCases.audioPlayerUseCase.pause()
-                Log.w("he he ","Bura viewModel Pause içinde usecase  sonra "+state.value.isPlaying +state.value.isPaused)
 
             }
             is AddEditNoteEvent.ResumePlaying -> {
-                Log.w("he he ","Bura viewModel Resume içinde state değişim   önce "+state.value.isPlaying +state.value.isPaused)
 
                 _state.value= state.value.copy(
                     isPlaying = isPlayingCase.value?: false,
                     isPaused = false
                     //focusedItem = event.focusedItem
                 )
-                Log.w("he he ","Bura viewModel Resume içinde state değişim   sonra "+state.value.isPlaying +state.value.isPaused)
+                Log.w(TAG,"Resume içinde state değişim   sonrası "+state.value.isPlaying +state.value.isPaused)
 
                 noteUseCases.audioPlayerUseCase.resume()
                 startRecordingTimer(state.value.fullTime)
 
-                Log.w("he he ","Bura viewModel Puase içinde use case sonra "+state.value.isPlaying +state.value.isPaused)
 
             }
             is AddEditNoteEvent.DeleteRecording -> {
-
                 _state.value= state.value.copy(
                     isPlaying = false,
                     isPaused = false
@@ -275,6 +247,11 @@ class AddEditNoteViewModel @Inject constructor(
             is AddEditNoteEvent.ChanceBBarIndex ->
             {
                 _bottamBarIndex.value= event.index
+            }
+
+            is AddEditNoteEvent.RestoreAudioRecord ->
+            {
+
             }
         }
     }

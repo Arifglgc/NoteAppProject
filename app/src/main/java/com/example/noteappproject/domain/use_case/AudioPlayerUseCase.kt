@@ -147,7 +147,6 @@ class AudioPlayerUseCase(
     }
 
     suspend fun deleteRecording(audioRecord: AudioRecord) {
-
         stop()
        // player?.stop()
         //player?.release()
@@ -188,7 +187,6 @@ class AudioPlayerUseCase(
     fun getNullAudios(): Flow<List<AudioRecord>> {
         return repository.getNullAudioRecords()
     }
-
     fun getAudiosByNoteId(id: Int): Flow<List<AudioRecord>> {
         return repository.getAudioRecordsByNoteId(id)
     }
